@@ -1,0 +1,30 @@
+
+
+buildscript {
+
+    repositories {
+        mavenLocal()
+        maven {
+            url "https://nexus.bedatadriven.com/content/groups/public"
+        }
+    }
+    dependencies {
+        classpath "org.renjin:gcc-bridge-compiler:${renjinVersion}"
+    }
+}
+
+subprojects {
+    apply plugin: 'maven-publish'
+    publishing {
+        repositories {
+            maven {
+                credentials {
+                    username 'deploy'
+                    password project.property('nexusPassword')
+                }
+                url "https://nexus.bedatadriven.com/content/repositories/renjin-releases"
+            }
+        }
+    }
+
+}
