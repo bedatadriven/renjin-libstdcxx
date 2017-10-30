@@ -19,10 +19,10 @@ subprojects {
         repositories {
             maven {
                 credentials {
-                    username 'deploy'
+                    username 'deployment'
                     password project.property('nexusPassword')
                 }
-                url "https://nexus.bedatadriven.com/content/repositories/renjin-releases"
+                url "https://nexus.bedatadriven.com/content/repositories/renjin-packages"
             }
         }
     }
