@@ -120,7 +120,8 @@ task compileCxx {
             project.exec {
                 workingDir = gccWorkDir
                 standardOutput = System.out
-                commandLine = ['gcc-4.7', '-c', '-m32', "-fplugin=${pluginFile}" ] + flags + [ "${sourceRoot.absolutePath}/${sourceFile}" ]
+                commandLine = ['gcc-4.7', '-c', '-m32', '-fno-inline-functions', '-fdisable-tree-einline',
+                               "-fplugin=${pluginFile}" ] + flags + [ "${sourceRoot.absolutePath}/${sourceFile}" ]
             }
         }
     }
