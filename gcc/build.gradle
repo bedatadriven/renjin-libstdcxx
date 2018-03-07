@@ -138,7 +138,7 @@ task compileGimple {
         compiler.outputDirectory = project.file("$buildDir/classes")
         compiler.packageName = "org.renjin.libstdcxx"
         compiler.pruneUnusedSymbols = false
-        compiler.logger = new org.renjin.gcc.HtmlTreeLogger(project.file("$buildDir/gcc-bridge-logs"))
+        compiler.loggingDirectory = project.file("$buildDir/gcc-bridge-logs")
         compiler.compileSources(gccWorkDir.listFiles().findAll { it.name.endsWith('.gimple') })
     }
 }
