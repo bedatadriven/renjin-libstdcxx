@@ -54,6 +54,8 @@ project.ext {
             "c++98/wlocale-inst.cc",
             "c++98/localename.cc",
 
+            "c++98/globals_io.cc",
+
 
             "c++11/fstream-inst.cc",
 
@@ -173,6 +175,7 @@ task headerJar(type: Jar) {
 
 build.dependsOn 'jar'
 build.dependsOn 'headerJar'
+
 
 publishing {
     publications {
