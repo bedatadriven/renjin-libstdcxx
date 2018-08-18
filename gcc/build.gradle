@@ -139,7 +139,6 @@ task compileGimple {
         def compiler = new org.renjin.gcc.GimpleCompiler();
         compiler.outputDirectory = project.file("$buildDir/classes")
         compiler.packageName = "org.renjin.libstdcxx"
-        compiler.pruneUnusedSymbols = false
         compiler.loggingDirectory = project.file("$buildDir/gcc-bridge-logs")
         compiler.compileSources(gccWorkDir.listFiles().findAll { it.name.endsWith('.gimple') })
     }
