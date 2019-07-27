@@ -1,5 +1,4 @@
 
-
 buildscript {
 
     repositories {
@@ -13,8 +12,8 @@ buildscript {
     }
 }
 
+apply plugin: 'java'
 apply plugin: 'maven-publish'
-apply plugin: 'maven'
 
 
 repositories {
@@ -31,67 +30,172 @@ project.ext {
     pluginFile = new File("${buildDir}/bridge.so")
     gccWorkDir = new File("${buildDir}/gcc-work")
     buildNumber = System.getenv("BUILD_NUMBER") ? System.getenv("BUILD_NUMBER") : "dev";
-    sourceFiles = [
-            "c++98/allocator-inst.cc",
-            "c++98/bitmap_allocator.cc",
-            "c++98/compatibility.cc",
-            "c++98/concept-inst.cc",
-            "c++98/ctype.cc",
-            "c++98/ext-inst.cc",
-            "c++98/misc-inst.cc",
-            "c++98/ios.cc",
-            "c++98/ios_failure.cc",
-            "c++98/ios_init.cc",
-            "c++98/ios-inst.cc",
-            "c++98/ios_locale.cc",
-            "c++98/istream.cc",
-            "c++98/istream-inst.cc",
-
-            "c++98/iostream-inst.cc",
-            "c++98/ostream-inst.cc",
-
-            "c++98/sstream-inst.cc",
-            "c++98/streambuf.cc",
-            "c++98/streambuf-inst.cc",
-
-            "c++98/stdexcept.cc",
-
-            "c++98/locale.cc",
-            "c++98/locale_facets.cc",
-            "c++98/locale_init.cc",
-            "c++98/locale-inst.cc",
-            "c++98/wlocale-inst.cc",
-            "c++98/localename.cc",
-
-
-            "c++98/globals_io.cc",
-
-
-            "c++11/fstream-inst.cc",
-
-            "c++11/functexcept.cc",
-            "c++11/functional.cc",
-
-            "c++11/future.cc",
-
-            "c++11/regex.cc",
-
-            "c++11/string-inst.cc",
-            "c++11/wstring-inst.cc",
-
-            "c++11/thread.cc"
-    ]
 }
 
+def sourceDir = project.file("gcc-${gccVersion}/libstdc++-v3/")
+def libsupDir = project.file("gcc-${gccVersion}/libstdc++-v3/libsupc++")
+def libgccIncludeDir = project.file("gcc-${gccVersion}/libgcc/")
+
+def supSources = [
+    "array_type_info.cc",
+    "atexit_arm.cc",
+    "bad_alloc.cc",
+    "bad_cast.cc",
+    "bad_typeid.cc",
+    "class_type_info.cc",
+    "del_op.cc",
+    "del_opnt.cc",
+    "del_opv.cc",
+    "del_opvnt.cc",
+    "dyncast.cc",
+    "eh_alloc.cc",
+    "eh_arm.cc",
+    "eh_aux_runtime.cc",
+    "eh_call.cc",
+    "eh_catch.cc",
+    "eh_exception.cc",
+    "eh_globals.cc",
+    "eh_personality.cc",
+    "eh_ptr.cc",
+    "eh_term_handler.cc",
+    "eh_terminate.cc",
+    "eh_tm.cc",
+    "eh_throw.cc",
+    "eh_type.cc",
+    "eh_unex_handler.cc",
+    "enum_type_info.cc",
+    "function_type_info.cc",
+    "fundamental_type_info.cc",
+    "guard.cc",
+    "guard_error.cc",
+    "hash_bytes.cc",
+    "nested_exception.cc",
+    "new_handler.cc",
+    "new_op.cc",
+    "new_opnt.cc",
+    "new_opv.cc",
+    "new_opvnt.cc",
+    "pbase_type_info.cc",
+    "pmem_type_info.cc",
+    "pointer_type_info.cc",
+    "pure.cc",
+    "si_class_type_info.cc",
+    "tinfo.cc",
+    "tinfo2.cc",
+    "vec.cc",
+    "vmi_class_type_info.cc",
+    "vterminate.cc"
+]
+
+def sources98 = [
+//    "src/c++98/bitmap_allocator.cc",
+//    "src/c++98/pool_allocator.cc",
+//    "src/c++98/mt_allocator.cc",
+    "src/c++98/codecvt.cc",
+    "src/c++98/complex_io.cc",
+   "src/c++98/ctype.cc",
+   "src/c++98/globals_io.cc",
+   "src/c++98/hash_tr1.cc",
+   "src/c++98/hashtable_tr1.cc",
+   "src/c++98/ios.cc",
+   "src/c++98/ios_failure.cc",
+   "src/c++98/ios_init.cc",
+   "src/c++98/ios_locale.cc",
+   "src/c++98/list.cc",
+   "src/c++98/locale.cc",
+   "src/c++98/locale_init.cc",
+   "src/c++98/locale_facets.cc",
+   "src/c++98/localename.cc",
+   "src/c++98/math_stubs_float.cc",
+   "src/c++98/math_stubs_long_double.cc",
+   "src/c++98/stdexcept.cc",
+   "src/c++98/strstream.cc",
+   "src/c++98/tree.cc",
+   "src/c++98/istream.cc",
+   "src/c++98/streambuf.cc",
+   "src/c++98/valarray.cc",
+//   "src/c++98/atomicity.cc",
+//   "src/c++98/bitmap_allocator.cc",
+   "src/c++98/pool_allocator.cc",
+   "src/c++98/mt_allocator.cc",
+   "src/c++98/codecvt.cc",
+   "src/c++98/complex_io.cc",
+   "src/c++98/ctype.cc",
+   "src/c++98/globals_io.cc",
+   "src/c++98/hash_tr1.cc",
+   "src/c++98/hashtable_tr1.cc",
+   "src/c++98/ios.cc",
+   "src/c++98/ios_failure.cc",
+   "src/c++98/ios_init.cc",
+   "src/c++98/ios_locale.cc",
+   "src/c++98/list.cc",
+   "src/c++98/locale.cc",
+   "src/c++98/locale_init.cc",
+   "src/c++98/locale_facets.cc",
+   "src/c++98/localename.cc",
+   "src/c++98/math_stubs_float.cc",
+   "src/c++98/math_stubs_long_double.cc",
+   "src/c++98/stdexcept.cc",
+   "src/c++98/strstream.cc",
+   "src/c++98/tree.cc",
+   "src/c++98/istream.cc",
+   "src/c++98/streambuf.cc",
+   "src/c++98/valarray.cc",
+//   "src/c++98/atomicity.cc",
+//   "src/c++98/codecvt_members.cc",
+//   "src/c++98/collate_members.cc",
+//   "src/c++98/ctype_configure_char.cc",
+//   "src/c++98/ctype_members.cc",
+//   "src/c++98/messages_members.cc",
+//   "src/c++98/monetary_members.cc",
+//   "src/c++98/numeric_members.cc",
+//   "src/c++98/time_members.cc",
+   "config/io/basic_file_stdio.cc",
+//   "src/c++98/c_locale.cc",
+   "src/c++98/allocator-inst.cc",
+   "src/c++98/concept-inst.cc",
+   "src/c++98/ext-inst.cc",
+   "src/c++98/ios-inst.cc",
+   "src/c++98/iostream-inst.cc",
+   "src/c++98/istream-inst.cc",
+   "src/c++98/locale-inst.cc",
+   "src/c++98/misc-inst.cc",
+   "src/c++98/ostream-inst.cc",
+   "src/c++98/sstream-inst.cc",
+   "src/c++98/streambuf-inst.cc",
+   "src/c++98/wlocale-inst.cc",
+   "src/c++98/parallel_settings.cc"
+]
+
+def sources11 = [
+    "chrono.cc",
+//    "condition_variable.cc", ---> threads!
+//    "debug.cc",
+    "functexcept.cc",
+    "functional.cc",
+    "future.cc",
+    "hash_c++0x.cc",
+    "hashtable_c++0x.cc",
+    "limits.cc",
+    "mutex.cc",
+    "placeholders.cc",
+    "regex.cc",
+    "shared_ptr.cc",
+    "system_error.cc",
+    "thread.cc",
+    "fstream-inst.cc",
+    "string-inst.cc",
+    "wstring-inst.cc",
+    "compatibility-thread-c++0x.cc"
+]
 
 configurations {
-    compile
+    sources
 }
 
 dependencies {
-    compile "gnu:gcc:${gccVersion}@tar.gz"
+    sources "gnu:gcc:${gccVersion}@tar.gz"
 }
-
 
 task buildGccPlugin {
     doLast {
@@ -100,48 +204,92 @@ task buildGccPlugin {
 }
 
 task fetchGccSources(type: Copy) {
-    from tarTree(resources.gzip(project.configurations.compile.find {it.name.startsWith("gcc")}))
+    from tarTree(resources.gzip(project.configurations.sources.find {it.name.startsWith("gcc")}))
     into projectDir
     onlyIf {
         !project.file("gcc-${gccVersion}").exists()
     }
 }
 
-task compileCxx {
-    dependsOn 'fetchGccSources'
-    dependsOn 'buildGccPlugin'
-    description 'Compiles .cc sources to gimple'
+/*
+ * The following task compiles the libstdc++ sources to object and gimple files.
+ *
+ * The configuration and the flags have been reverse-engineered from building GCC-4.7.4 and more or less copying
+ * the compilation commands executed.
+ *
+ * There are a few modifications:
+ *
+ * - GCC compiles most of these sources with -nostdinc++ and includes a configured version of the std c++ headers.
+ *   When I tried this, the build failed, so I ommitted the flags and the local headers. This means we could be
+ *   building against a slightly different version of the C++ headers, but it seems to mostly work this way.
+ *
+ * - For now, inlining is disabled as it seems to work better with the Gimple compiler. To be confirmed.
+ */
 
-    def sourceRoot = project.file("gcc-${gccVersion}/libstdc++-v3/src")
-    def libsupDir = project.file("gcc-${gccVersion}/libstdc++-v3/libsupc++")
+task compileCC {
 
+
+    inputs.dir sourceDir
+    inputs.dir libgccIncludeDir
     outputs.dir gccWorkDir
 
-    doLast {
-        gccWorkDir.mkdirs()
+    doFirst {
 
-        sourceFiles.each { sourceFile ->
+        project.delete gccWorkDir
+        project.mkdir gccWorkDir
 
-            logger.lifecycle("Compiling ${sourceFile}")
 
-            def flags = [ "-Igcc-${gccVersion}/libstdc++-v3/include"];
-            if(sourceFile.contains("c++11")) {
-                flags += '-std=gnu++11'
-            }
-
+        project.mkdir "${gccWorkDir}/sup"
+        supSources.forEach { source ->
             project.exec {
-                workingDir = gccWorkDir
+                workingDir = "${gccWorkDir}/sup"
+                commandLine = ['gcc-4.7', '-c', '-m32', '-fno-inline-functions', '-fdisable-tree-einline', '-fno-rtti',
+                               "-I${libgccIncludeDir.absolutePath}",
+                               "-I${libsupDir.absolutePath}",
+                               "-D_GLIBCXX_SHARED",
+                               "-D_GNU_SOURCE",
+                               "-fplugin=${pluginFile}",
+                               "${libsupDir.absolutePath}/${source}" ]
+            }
+        }
+
+        project.mkdir "${gccWorkDir}/c++98"
+
+        sources98.forEach { source ->
+            project.exec {
+                workingDir = "${gccWorkDir}/c++98"
                 standardOutput = System.out
-                commandLine = ['gcc-4.7', '-c', '-m32', '-fno-inline-functions', '-fdisable-tree-einline', '-fno-rtti', '-E',
-                               "-I${libsupDir}",
-                               "-fplugin=${pluginFile}" ] + flags + [ "${sourceRoot.absolutePath}/${sourceFile}" ]
+                commandLine = ['gcc-4.7', '-c', '-m32', '-fno-inline-functions', '-fno-implicit-templates', '-fdisable-tree-einline', '-fno-rtti',
+                               "-I${libgccIncludeDir.absolutePath}",
+                               "-I${libsupDir.absolutePath}",
+                               "-D_GLIBCXX_SHARED",
+                               "-D_GNU_SOURCE",
+                               "-fplugin=${pluginFile}",
+                               "${sourceDir.absolutePath}/${source}" ]
+            }
+        }
+
+        project.mkdir "${gccWorkDir}/c++11"
+
+        sources11.forEach { source ->
+            project.exec {
+                workingDir =  "${gccWorkDir}/c++11"
+                standardOutput = System.out
+                commandLine = ['gcc-4.7', '-c', '-m32', '-fno-inline-functions', '-fno-implicit-templates', '-fdisable-tree-einline', '-fno-rtti',
+                               "-I${libgccIncludeDir.absolutePath}",
+                               "-I${libsupDir.absolutePath}",
+                               "-std=gnu++11",
+                               "-D_GLIBCXX_SHARED",
+                               "-D_GNU_SOURCE",
+                               "-fplugin=${pluginFile}",
+                               "${sourceDir.absolutePath}/src/c++11/${source}" ]
             }
         }
     }
 }
 
 task compileGimple {
-    dependsOn 'compileCxx'
+    dependsOn 'compileCC'
     description 'Compiles .gimple output to JVM bytecode'
     inputs.dir gccWorkDir
     outputs.dir project.file("$buildDir/classes")
@@ -150,64 +298,37 @@ task compileGimple {
         def compiler = new org.renjin.gcc.GimpleCompiler();
         compiler.outputDirectory = project.file("$buildDir/classes")
         compiler.packageName = "org.renjin.libstdcxx"
+        compiler.ignoreErrors = true
         compiler.loggingDirectory = project.file("$buildDir/gcc-bridge-logs")
-        compiler.compileSources(gccWorkDir.listFiles().findAll { it.name.endsWith('.gimple') })
+        compiler.compileSources( project.fileTree(gccWorkDir).files.findAll { it.name.endsWith('.gimple') }.asList())
     }
 }
 
-task jar(type: Jar) {
-    dependsOn 'compileGimple'
-    archiveName = "renjin-libstdcxx.jar"
-    destinationDir = project.file("$buildDir/libs")
-    from("$buildDir/classes") {
 
+sourceSets {
+    main {
+        output.dir("$buildDir/classes", builtBy: 'compileGimple')
     }
 }
-
-task sourceJar(type: Jar) {
-    archiveName = "renin-libstdcxx-sources.jar"
-    destinationDir = project.file("$buildDir/libs")
-
-    def sources = sourceFiles.collect { project.file("gcc-${gccVersion}/libstdc++-v3/src/${it}") }
-
-    from(sources) {
-        into "org/renjin/libstdcxx"
-    }
-}
-
-task headerJar(type: Jar) {
-    archiveName = "renjin-libstdcxx-headers.jar"
-    destinationDir = project.file("$buildDir/libs")
-    from("gcc-${gccVersion}/libstdc++-v3/include") {
-        exclude "Makefile*"
-    }
-}
-
-build.dependsOn 'jar'
-build.dependsOn 'headerJar'
-
 
 publishing {
     publications {
-        library(MavenPublication) {
+        maven(MavenPublication) {
+            from components.java
             groupId 'org.renjin'
             artifactId 'libstdcxx'
-            version "${gccVersion}-b${buildNumber}"
-
-            artifact jar
-            artifact(headerJar) {
-                classifier = "headers"
-            }
         }
     }
 
-    repositories {
-        maven {
-            credentials {
-                username 'deployment'
-                password project.property('nexusPassword')
+    if(project.hasProperty('renjinDeploymentPassword')) {
+        repositories {
+            maven {
+                url = "https://nexus.bedatadriven.com/content/repositories/renjin-release/"
+                credentials {
+                    username 'deployment'
+                    password project.property("renjinDeploymentPassword")
+                }
             }
-            url "https://nexus.bedatadriven.com/content/repositories/renjin-packages"
         }
     }
 }
