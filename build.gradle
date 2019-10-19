@@ -227,6 +227,9 @@ task fetchGccSources(type: Copy) {
  */
 
 task compileCC {
+  
+    dependsOn 'fetchGccSources'
+    dependsOn 'buildGccPlugin'
 
 
     inputs.dir sourceDir
