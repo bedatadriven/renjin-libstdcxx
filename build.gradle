@@ -6,6 +6,7 @@ buildscript {
         maven {
             url "https://nexus.bedatadriven.com/content/groups/public"
         }
+        mavenCentral()
     }
     dependencies {
         classpath "org.renjin:gcc-bridge-compiler:${renjinVersion}"
