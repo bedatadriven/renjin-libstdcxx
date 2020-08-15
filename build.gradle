@@ -2,7 +2,7 @@
 buildscript {
 
     repositories {
-        mavenLocal()
+        mavenCentral()
         maven {
             url "https://nexus.bedatadriven.com/content/groups/public"
         }
@@ -17,6 +17,7 @@ apply plugin: 'maven-publish'
 
 
 repositories {
+    mavenCentral()
     ivy {
         url 'https://ftp.gnu.org/'
         layout 'pattern', {
