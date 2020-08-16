@@ -1,0 +1,9 @@
+
+
+includeBuild('../renjin') {
+    dependencySubstitution {
+        substitute module('org.renjin:gcc-bridge-compiler') with project(':tools:gcc-bridge:gcc-bridge-compiler')
+        substitute module('org.renjin:gcc-bridge-runtime') with project(':tools:gcc-bridge:runtime')
+    }
+}
+

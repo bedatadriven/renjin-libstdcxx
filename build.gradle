@@ -1,16 +1,4 @@
 
-buildscript {
-
-    repositories {
-        mavenCentral()
-        maven {
-            url "https://nexus.bedatadriven.com/content/groups/public"
-        }
-    }
-    dependencies {
-        classpath "org.renjin:gcc-bridge-compiler:${renjinVersion}"
-    }
-}
 
 apply plugin: 'java'
 apply plugin: 'maven-publish'
@@ -18,17 +6,15 @@ apply plugin: 'maven-publish'
 
 repositories {
     mavenCentral()
-    ivy {
-        url 'https://ftp.gnu.org/'
-        layout 'pattern', {
-            artifact '/[organisation]/[module]/[module]-[revision]/[module]-[revision].[ext]'
-        }
+    maven {
+       url "https://nexus.bedatadriven.com/content/groups/public"
     }
 }
 
 project.ext {
     gccVersion = "4.7.4"
-    pluginFile = new File("${buildDir}/bridge.so")
+    sourceArchiveFile = new File("${buildDir}/gcc-${gccVersion}.tar.gz")
+    pluginFile = project.property("gccBridgePlugin")
     gccWorkDir = new File("${buildDir}/gcc-work")
     buildNumber = System.getenv("BUILD_NUMBER") ? System.getenv("BUILD_NUMBER") : "dev";
 }
@@ -191,26 +177,38 @@ def sources11 = [
 ]
 
 configurations {
-    sources
+    gimpleCompiler
 }
 
 dependencies {
-    sources "gnu:gcc:${gccVersion}@tar.gz"
+    gimpleCompiler "org.renjin:gcc-bridge-compiler:${renjinVersion}"
 }
 
-task buildGccPlugin {
+
+task downloadGccSources {
+    inputs.property "version", gccVersion
+    outputs.file sourceArchiveFile
     doLast {
-        org.renjin.gcc.Gcc.extractPluginTo(pluginFile)
+        def url = new URL("https://ftp.gnu.org/gnu/gcc/gcc-${gccVersion}/gcc-${gccVersion}.tar.gz")
+        url.withInputStream{ i -> sourceArchiveFile.withOutputStream{ it << i }}
+    }
+    onlyIf {
+        !project.file("gcc-${gccVersion}").exists()
     }
 }
 
-task fetchGccSources(type: Copy) {
-    from tarTree(resources.gzip(project.configurations.sources.find {it.name.startsWith("gcc")}))
+task unpackGccSources(type: Copy) {
+    dependsOn downloadGccSources
+    from tarTree(sourceArchiveFile)
     into projectDir
     onlyIf {
         !project.file("gcc-${gccVersion}").exists()
     }
 }
+
+task buildGccPlugin {
+   // No-op currently
+} 
 
 /*
  * The following task compiles the libstdc++ sources to object and gimple files.
@@ -229,7 +227,7 @@ task fetchGccSources(type: Copy) {
 
 task compileCC {
   
-    dependsOn 'fetchGccSources'
+    dependsOn 'unpackGccSources'
     dependsOn 'buildGccPlugin'
 
 
@@ -292,19 +290,21 @@ task compileCC {
     }
 }
 
-task compileGimple {
+task compileGimple(type: JavaExec) {
     dependsOn 'compileCC'
     description 'Compiles .gimple output to JVM bytecode'
     inputs.dir gccWorkDir
     outputs.dir project.file("$buildDir/classes")
 
-    doLast {
-        def compiler = new org.renjin.gcc.GimpleCompiler();
-        compiler.outputDirectory = project.file("$buildDir/classes")
-        compiler.packageName = "org.renjin.libstdcxx"
-        compiler.ignoreErrors = true
-        compiler.loggingDirectory = project.file("$buildDir/gcc-bridge-logs")
-        compiler.compileSources( project.fileTree(gccWorkDir).files.findAll { it.name.endsWith('.gimple') }.asList())
+    main = 'org.renjin.gcc.GimpleCompiler'
+    classpath configurations.gimpleCompiler
+    args "--package=org.renjin.libstdcxx"
+    args "--output-dir=$buildDir/classes"
+    args "--log-dir=$buildDir/gcc-bridge-logs"
+    args "--ignore-errors=true"
+
+    doFirst {
+      args project.fileTree(gccWorkDir).files.findAll { it.name.endsWith('.gimple') }.asList()
     }
 }
 
