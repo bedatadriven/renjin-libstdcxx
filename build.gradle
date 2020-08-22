@@ -241,6 +241,8 @@ task compileCC {
         supSources.forEach { source ->
             project.exec {
                 workingDir = "${gccWorkDir}/sup"
+                logging.captureStandardOutput LogLevel.INFO
+	        logging.captureStandardError LogLevel.INFO
                 commandLine = ['gcc-4.7', '-c', '-m32', '-fno-inline-functions', '-fdisable-tree-einline', '-fno-rtti',
                                "-I${libgccIncludeDir.absolutePath}",
                                "-I${libsupDir.absolutePath}",
@@ -256,7 +258,8 @@ task compileCC {
         sources98.forEach { source ->
             project.exec {
                 workingDir = "${gccWorkDir}/c++98"
-                standardOutput = System.out
+                logging.captureStandardOutput LogLevel.INFO
+	        logging.captureStandardError LogLevel.INFO
                 commandLine = ['gcc-4.7', '-c', '-m32', '-fno-inline-functions', '-fno-implicit-templates', '-fdisable-tree-einline', '-fno-rtti',
                                "-I${libgccIncludeDir.absolutePath}",
                                "-I${libsupDir.absolutePath}",
@@ -272,7 +275,8 @@ task compileCC {
         sources11.forEach { source ->
             project.exec {
                 workingDir =  "${gccWorkDir}/c++11"
-                standardOutput = System.out
+                logging.captureStandardOutput LogLevel.INFO
+	        logging.captureStandardError LogLevel.INFO
                 commandLine = ['gcc-4.7', '-c', '-m32', '-fno-inline-functions', '-fno-implicit-templates', '-fdisable-tree-einline', '-fno-rtti',
                                "-I${libgccIncludeDir.absolutePath}",
                                "-I${libsupDir.absolutePath}",
@@ -298,6 +302,8 @@ task compileGimple(type: JavaExec) {
     args "--output-dir=$buildDir/classes"
     args "--log-dir=$buildDir/gcc-bridge-logs"
     args "--ignore-errors=true"
+    logging.captureStandardOutput LogLevel.INFO
+    logging.captureStandardError LogLevel.INFO
 
     doFirst {
       args project.fileTree(gccWorkDir).files.findAll { it.name.endsWith('.gimple') }.asList()
