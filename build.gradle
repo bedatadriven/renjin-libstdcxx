@@ -206,9 +206,6 @@ task unpackGccSources(type: Copy) {
     }
 }
 
-task buildGccPlugin {
-   // No-op currently
-} 
 
 /*
  * The following task compiles the libstdc++ sources to object and gimple files.
@@ -228,7 +225,6 @@ task buildGccPlugin {
 task compileCC {
   
     dependsOn 'unpackGccSources'
-    dependsOn 'buildGccPlugin'
 
 
     inputs.dir sourceDir
